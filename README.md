@@ -13,6 +13,4 @@ Currently depends on wireguard repo forks for a better FreeBSD and Windows suppo
 ## TODO
 
 * IPv6 support
-* Merge fork changes to upstream wireguard
 * Suport Windows DNS suffix search list
-* Less `os/exec` calls / more syscalls
