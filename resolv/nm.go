@@ -23,6 +23,9 @@ const (
 	nmDeviceGetAppliedConnection = nmInterface + ".Device.GetAppliedConnection"
 	nmDeviceReapply              = nmInterface + ".Device.Reapply"
 	nmDnsManagerConfiguration    = nmInterface + ".DnsManager.Configuration"
+	nmDnsManagerMode             = nmInterface + ".DnsManager.Mode"
+
+	nmDnsModeSystemd = "systemd-resolved"
 )
 
 func (h *Handler) isNetworkManager() bool {
@@ -36,9 +39,19 @@ func (h *Handler) isNetworkManager() bool {
 	}
 	defer conn.Close()
 
+	// Check if the DnsManager mode is systemd
+	obj := conn.Object(nmInterface, nmDnsManagerPath)
+	mode, err := obj.GetProperty(nmDnsManagerMode)
+	if err != nil {
+		return false
+	}
+	if mode.Value() == nmDnsModeSystemd {
+		return false
+	}
+
 	// list current devices
 	var devices []dbus.ObjectPath
-	obj := conn.Object(nmInterface, nmObjectPath)
+	obj = conn.Object(nmInterface, nmObjectPath)
 	err = obj.Call(nmGetDevices, 0).Store(&devices)
 	if err != nil {
 		return false
