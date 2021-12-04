@@ -27,7 +27,8 @@ type Handler struct {
 	dbusShillServicePath string
 	dbusNmConnectionPath string
 	// only with systemd-resolved
-	dnsDomains []string
+	dnsDomains    []string
+	nmViaResolved map[int][]net.IP
 
 	// parsed /etc/resolv.conf
 	origDnsServers  []net.IP
@@ -143,7 +144,10 @@ func (h *Handler) IsNetworkManager() bool {
 }
 
 func (h *Handler) IsResolve() bool {
-	// NetworkManager may work on top of systemd-resolved
+	// NetworkManager may work on top of systemd-resolved, but NetworkManager
+	// can also be configured to defer to systemd-resolved.
+	// The IsNetworkManager check returns false if resolved is the correct
+	// place to look.
 	if h.IsNetworkManager() {
 		return false
 	}
